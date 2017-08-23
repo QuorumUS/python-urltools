@@ -26,25 +26,13 @@ PSL_URL = 'https://publicsuffix.org/list/effective_tld_names.dat'
 def _get_public_suffix_list():
     """Return a set containing all Public Suffixes.
 
-    If the env variable PUBLIC_SUFFIX_LIST does not point to a local copy of the
-    public suffix list it is downloaded into memory each time urltools is
-    imported.
+    This file is stored at 
     """
-    local_psl = os.environ.get('PUBLIC_SUFFIX_LIST')
-    if local_psl:
-        with codecs.open(local_psl, 'r', 'utf-8') as f:
-            psl_raw = f.readlines()
-    else:
-        psl_raw = unicode(urlopen(PSL_URL).read(), 'utf-8').split('\n')
-    psl = set()
-    for line in psl_raw:
-        item = line.strip()
-        if item != '' and not item.startswith('//'):
-            psl.add(item)
-    return psl
+    ps_path = "../public_suffix_list.dat"
+    with codecs.open(local_psl, 'r', 'utf-8') as f:
+        psl_raw = f.readlines()
 
-PSL = _get_public_suffix_list()
-assert len(PSL) > 0, 'Public Suffix List is empty!'
+    return psl
 
 
 SCHEMES = ['http', 'https', 'ftp', 'sftp', 'file', 'gopher', 'imap', 'mms',
@@ -409,6 +397,10 @@ def split_host(host):
     >>> split_host('foo.bar.co.uk')
     ('foo', 'bar', 'co.uk')
     """
+    
+    PSL = _get_public_suffix_list()
+    assert len(PSL) > 0, 'Public Suffix List is empty!'
+    
     # host is IPv6?
     if '[' in host:
         return '', host, ''
